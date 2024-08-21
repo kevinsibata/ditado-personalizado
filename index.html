@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prova de Ditado Personalizada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFF8DC; /* Fundo em tom creme */
+        }
+
+        .container {
+            margin-top: 50px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+            padding: 20px;
+            background-color: #FFECB3; /* Amarelo claro, tom de girassol */
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #8B4513; /* Marrom, remetendo ao caule do girassol */
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            font-weight: bold;
+            color: #8B4513;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #F4A460; /* Cor de laranja suave */
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #FFFACD; /* Amarelo muito claro */
+            height: 150px;
+            resize: vertical;
+        }
+
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #F4A460; /* Cor de laranja suave */
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #FFFACD; /* Amarelo muito claro */
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #FFD700; /* Amarelo dourado */
+            color: #8B4513; /* Marrom */
+            cursor: pointer;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        button:hover {
+            background-color: #FFC107; /* Amarelo mais escuro */
+        }
+
+        .ditado-item {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 15px 0;
+            width: 100%;
+        }
+
+        .ditado-item input[type="text"] {
+            width: calc(100% - 50px);
+            padding: 10px;
+            border: 2px solid #F4A460; /* Cor de laranja suave */
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #FFFACD; /* Amarelo muito claro */
+            margin-bottom: 10px;
+        }
+
+        .sound-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            outline: none;
+        }
+
+        .sound-button img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .bottom-row {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .bottom-row button {
+            width: 150px;
+        }
+
+        .feedback {
+            font-weight: bold;
+            min-width: 200px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .correct {
+            color: #228B22; /* Verde floresta */
+        }
+
+        .incorrect {
+            color: #B22222; /* Vermelho tijolo */
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #F4A460; /* Cor de laranja suave */
+            border-radius: 8px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 24px;
+            background-color: #228B22; /* Verde floresta */
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.3s;
+        }
+
+        .scoreboard {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #8B4513; /* Marrom */
+        }
+
+        .final-score {
+            font-size: 24px;
+            color: #8B4513; /* Marrom */
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .results ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .results li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .results .correct {
+            color: #228B22; /* Verde floresta */
+        }
+
+        .results .incorrect {
+            color: #B22222; /* Vermelho tijolo */
+        }
+
+        .restart-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Verde */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .restart-button:hover {
+            background-color: #45a049; /* Verde mais escuro */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prova de Ditado Personalizada</h1>
+        <div id="gameSetup">
+            <div class="input-group">
+                <label for="palavras">Insira as palavras (separadas por quebra de linha):</label>
+                <textarea id="palavras" placeholder="Digite uma palavra por linha"></textarea>
+            </div>
+            <div class="input-group">
+                <label for="quantidade">Quantidade de palavras no jogo:</label>
+                <input type="number" id="quantidade" value="10" min="1">
+            </div>
+            <div class="input-group">
+                <label for="tentativas">Número de tentativas:</label>
+                <input type="number" id="tentativas" value="3" min="1">
+            </div>
+            <button onclick="iniciarJogo()">Iniciar Jogo</button>
+        </div>
+        <div id="gameContainer" style="display: none;">
+            <div id="ditadoContainer"></div>
+            <div class="scoreboard">
+                <p>Tentativas restantes: <span id="attempts">0</span></p>
+            </div>
+            <div class="progress-bar-container">
+                <div id="progressBar" class="progress-bar">0%</div>
+            </div>
+            <div id="finalScoreContainer" class="final-score" style="display: none;"></div>
+            <div id="resultsContainer" class="results" style="display: none;"></div>
+            <button id="restartButton" class="restart-button" style="display: none;" onclick="reiniciarJogo()">Reiniciar Jogo</button>
+        </div>
+    </div>
+
+    <script>
+        let palavrasBase = [];
+        let quantidadePalavras = 10;
+        let maxTentativas = 3;
+        let tentativasRestantes;
+        let palavraAtualIndex = 0;
+        let acertos = 0;
+        let resultados = [];
+
+        function iniciarJogo() {
+            const palavrasInput = document.getElementById('palavras').value.trim();
+            palavrasBase = palavrasInput.split('\n').map(palavra => palavra.trim().toLowerCase()).filter(word => word);
+            quantidadePalavras = parseInt(document.getElementById('quantidade').value, 10);
+            maxTentativas = parseInt(document.getElementById('tentativas').value, 10);
+
+            tentativasRestantes = maxTentativas;
+            palavraAtualIndex = 0;
+            acertos = 0;
+            resultados = [];
+
+            if (quantidadePalavras > palavrasBase.length) {
+                alert('A quantidade de palavras escolhida é maior do que o número de palavras disponíveis.');
+                return;
+            }
+
+            palavrasBase = sortearPalavras(palavrasBase, quantidadePalavras);
+
+            document.getElementById('gameSetup').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+
+            atualizarProgresso();
+            atualizarTentativas();
+            gerarInterface();
+        }
+
+        function sortearPalavras(palavras, quantidade) {
+            const palavrasSorteadas = [];
+            const palavrasDisponiveis = [...palavras];
+            for (let i = 0; i < quantidade; i++) {
+                const indexAleatorio = Math.floor(Math.random() * palavrasDisponiveis.length);
+                palavrasSorteadas.push(palavrasDisponiveis[indexAleatorio]);
+                palavrasDisponiveis.splice(indexAleatorio, 1);
+            }
+            return palavrasSorteadas;
+        }
+
+        function gerarInterface() {
+            const container = document.getElementById('ditadoContainer');
+            container.innerHTML = '';
+
+            const div = document.createElement('div');
+            div.className = 'ditado-item';
+
+            div.innerHTML = `
+                <button class="sound-button" onclick="generateAudio('${palavrasBase[palavraAtualIndex]}')">
+                    <img src="https://img.icons8.com/ios-filled/50/000000/speaker.png" alt="Ouvir">
+                </button>
+                <input type="text" id="resposta" placeholder="Digite a palavra...">
+                <div class="bottom-row">
+                    <button onclick="verificarResposta()">Verificar Resposta</button>
+                    <span id="feedback" class="feedback"></span>
+                </div>
+            `;
+
+            container.appendChild(div);
+        }
+
+        function generateAudio(texto) {
+            const synth = window.speechSynthesis;
+            const utterance = new SpeechSynthesisUtterance(texto);
+            const vozFeminina = synth.getVoices().find(voice => voice.lang === 'pt-BR' && voice.name.includes('female'));
+            utterance.voice = vozFeminina || synth.getVoices().find(voice => voice.lang === 'pt-BR');
+            utterance.lang = 'pt-BR';
+            synth.speak(utterance);
+        }
+
+        function verificarResposta() {
+            const input = document.getElementById(`resposta`).value.trim().toLowerCase();
+            const feedbackElement = document.getElementById(`feedback`);
+            const respostaCorreta = palavrasBase[palavraAtualIndex];
+            let resultado;
+
+            if (input === respostaCorreta) {
+                feedbackElement.textContent = "Correto!";
+                feedbackElement.className = "feedback correct";
+                acertos++;
+                resultado = { palavra: respostaCorreta, status: "correct", respostaDada: input };
+            } else {
+                feedbackElement.textContent = `Incorreto. A palavra correta era: ${respostaCorreta}`;
+                feedbackElement.className = "feedback incorrect";
+                tentativasRestantes -= 1;
+                resultado = { palavra: respostaCorreta, status: "incorrect", respostaDada: input };
+            }
+
+            resultados.push(resultado);
+            atualizarProgresso();
+            atualizarTentativas();
+            palavraAtualIndex++;
+
+            setTimeout(() => {
+                if (palavraAtualIndex < palavrasBase.length && tentativasRestantes > 0) {
+                    gerarInterface();
+                } else {
+                    finalizarJogo();
+                }
+            }, 1000);
+        }
+
+        function atualizarProgresso() {
+            const progresso = (acertos / palavrasBase.length) * 100;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = `${progresso}%`;
+            progressBar.textContent = `${Math.round(progresso)}%`;
+        }
+
+        function atualizarTentativas() {
+            document.getElementById('attempts').textContent = tentativasRestantes;
+        }
+
+        function finalizarJogo() {
+            const finalScoreContainer = document.getElementById('finalScoreContainer');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const restartButton = document.getElementById('restartButton');
+
+            document.getElementById('ditadoContainer').style.display = 'none';
+            document.querySelector('.progress-bar-container').style.display = 'none';
+            document.querySelector('.scoreboard').style.display = 'none';
+
+            finalScoreContainer.textContent = `Fim de jogo! Sua pontuação final é: ${acertos} acertos (${Math.round((acertos / palavrasBase.length) * 100)}%)`;
+            finalScoreContainer.style.display = 'block';
+
+            const resultsList = document.createElement('ul');
+            resultados.forEach((resultado) => {
+                const listItem = document.createElement('li');
+                if (resultado.status === "correct") {
+                    listItem.textContent = `${resultado.palavra}: Correto`;
+                } else {
+                    listItem.textContent = `${resultado.palavra}: Incorreto (Você digitou: "${resultado.respostaDada}")`;
+                }
+                listItem.className = resultado.status;
+                resultsList.appendChild(listItem);
+            });
+
+            resultsContainer.innerHTML = '<h3>Resultados:</h3>';
+            resultsContainer.appendChild(resultsList);
+            resultsContainer.style.display = 'block';
+
+            restartButton.style.display = 'block';
+        }
+
+        function reiniciarJogo() {
+            document.getElementById('gameSetup').style.display = 'block';
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('finalScoreContainer').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('restartButton').style.display = 'none';
+
+            document.getElementById('palavras').value = '';
+            document.getElementById('quantidade').value = 10;
+            document.getElementById('tentativas').value = 3;
+        }
+    </script>
+</body>
+</html>
